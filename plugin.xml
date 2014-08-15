@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<!-- plugin.xml file written by dynaTrace Client 6.0.0 -->
+<plugin> 
+  <extension point="com.dynatrace.diagnostics.pdk.pluginconfig" id="com.marklogic.rlsi.dynatrace.performance" name="Enable Performance">
+    <information> 
+      <category value="" /> 
+      <displayname value="Enable Performance Action" /> 
+      <description value="This plugin triggers performance logging on the Java Application side.&#x9;&#x9;" /> 
+    </information> 
+    <configuration>
+      <property key="protocol" label="Http protocol" type="string" description="The http protocol to use" default="http"/>
+      <property key="serverHostname" label="Server Hostname" type="string" description="The hostname of the server to trigger." default="localhost" multiline="false" />
+      <property key="port" label="Server Port" type="long" description="The server port to trigger" default="8000" />
+      <property key="uri" label="Target URI" type="string" description="The target URI on which to gather stats" default="/target/uri"/>
+      <property key="path" label="Target path" type="string" description="The target path of the watchlist servlet" default="/example/watching"/>
+    </configuration>
+  </extension>
+  <extension point="com.dynatrace.diagnostics.pdk.action" id="com.marklogic.rlsi.dynatrace.performance.action" name="Trigger Profiling Requests action">
+    <plugin configid="com.marklogic.rlsi.dynatrace.performance" class="com.marklogic.rlsi.dynatrace.TriggerProfiling" />
+  </extension>
+</plugin>
+
