@@ -10,7 +10,6 @@ package com.marklogic.rlsi.dynatrace;
 import com.dynatrace.diagnostics.pdk.*;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.logging.Logger;
 
 
@@ -61,16 +60,27 @@ public class TriggerProfiling implements Action {
 	public Status execute(ActionEnvironment env) throws Exception {
 		// this sample shows how to receive and act on incidents
 		Collection<Incident> incidents = env.getIncidents();
+		
+		String watchingURI = null;
+		
 		for (Incident incident : incidents) {
 			String message = incident.getMessage();
-			log.info("Incident " + message + " triggered.");
+			log.info("----- Incident " + message + " triggered. ------");
+			log.info(String.format("\tDescription : %s", incident.getIncidentRule().getDescription()));
+			log.info(String.format("\tRule        : %s", incident.getIncidentRule().getName()));
 			for (Violation violation : incident.getViolations()) {
 				log.info("Measure " + violation.getViolatedMeasure().getName() + " violoated threshold.");
-				log.info(violation.getViolatedMeasure().getApplication());
-				log.info(violation.getViolatedMeasure().getDescription());
-				log.info(violation.getViolatedMeasure().getSource().toString());
-				log.info(violation.getViolatedThreshold().getType().name());
-				log.info(violation.getViolatedThreshold().getValue().toString());
+				log.info(String.format("\t\tApplication : %s", violation.getViolatedMeasure().getApplication()));
+				log.info(String.format("\t\tMeasure     : %s", violation.getViolatedMeasure().getDescription()));
+				log.info(String.format("\t\tSource      : %s", violation.getViolatedMeasure().getSource().toString()));
+				log.info(String.format("\t\tType        : %s", violation.getViolatedThreshold().getType().name()));
+				log.info(String.format("\t\tThreshold   : %s", violation.getViolatedThreshold().getValue().toString()));
+				for (String sp : violation.getViolatedMeasure().getSplittings()) {
+					log.info(String.format("\t\t\tSplitting '%s'", sp));
+					if (sp.matches("/[a-zA-Z0-9].*")) {
+						watchingURI = sp;
+					}
+				}
 			}
 		}
 		log.info("Executing on " + env.getHost().getAddress() + " !!!");
@@ -81,8 +91,10 @@ public class TriggerProfiling implements Action {
 		String path = env.getConfigString("path");
 		Integer port = env.getConfigLong("port").intValue();
 		
-		ProfilingURLManager manager = new ProfilingURLManager(protocol, host, port, path);
-		manager.addUrl("/stocks/list");
+		if (watchingURI != null) {
+			ProfilingURLManager manager = new ProfilingURLManager(protocol, host, port, path);
+			manager.addUrl(watchingURI);
+		}
 		
 		return new Status(Status.StatusCode.Success);
 	}
