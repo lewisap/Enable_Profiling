@@ -71,11 +71,13 @@ public class ProfilingURLManager {
 		CloseableHttpResponse response = null;
 		InputStream is = null;
 		
+		logger.info(post.getURI().toString());
+		
 		try {
-		response = httpClient.execute(post);
-		is = response.getEntity().getContent();
-			
-		result = extractResponse(is);
+			response = httpClient.execute(post);
+			is = response.getEntity().getContent();
+				
+			result = extractResponse(is);
 		} catch(IOException ioe) {
 			logger.log(Level.SEVERE, ioe.getMessage(), ioe);
 		}
