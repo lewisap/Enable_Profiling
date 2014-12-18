@@ -60,12 +60,12 @@ public class TriggerProfiling implements Action {
 	public Status execute(ActionEnvironment env) throws Exception {
 		// this sample shows how to receive and act on incidents
 		Collection<Incident> incidents = env.getIncidents();
-		 
+
         String watchingURI = null;
- 
+
         for (Incident incident : incidents) {
             String message = incident.getMessage();
- 
+
             log.info("----- Incident " + message + " triggered. ------");
             log.info(String.format("\tDescription : %s", incident.getIncidentRule().getDescription()));
             log.info(String.format("\tRule        : %s", incident.getIncidentRule().getName()));
@@ -76,22 +76,22 @@ public class TriggerProfiling implements Action {
                 log.info(String.format("\t\tSource      : %s", violation.getViolatedMeasure().getSource().toString()));
                 log.info(String.format("\t\tType        : %s", violation.getViolatedThreshold().getType().name()));
                 log.info(String.format("\t\tThreshold   : %s", violation.getViolatedThreshold().getValue().toString()));
- 
+
                 for (Violation.TriggerValue tv : violation.getTriggerValues()) {
-                    log.info(String.format("\t\t\tTriggerValue Value '%s'", tv.getValue()));                   
+                    log.info(String.format("\t\t\tTriggerValue Value '%s'", tv.getValue()));
                 }
-               
+
                 for (String sp : violation.getViolatedMeasure().getSplittings()) {
                     log.info(String.format("\t\t\tSplitting '%s'", sp));
                     //if (sp.matches("/[a-zA-Z0-9].*")) {
-                    //	log.info("\t\tWATCHING URI = " + sp);  
+                    //	log.info("\t\tWATCHING URI = " + sp);
                     watchingURI = sp;
                     //}
                 }
             }
         }
-        
-		//log.info("Executing on " + env.getHost().getAddress() + " !!!");
+
+		log.info("Executing on " + env.getHost().getAddress() + " !!!");
 		log.info("Execute inside of " + this.getClass().getCanonicalName());
 
 		String protocol = env.getConfigString("protocol");
