@@ -7,10 +7,18 @@
 
 package com.marklogic.rlsi.dynatrace;
 
-import com.dynatrace.diagnostics.pdk.*;
-
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
+
+import com.dynatrace.diagnostics.pdk.Action;
+import com.dynatrace.diagnostics.pdk.ActionEnvironment;
+import com.dynatrace.diagnostics.pdk.Incident;
+import com.dynatrace.diagnostics.pdk.Plugin;
+import com.dynatrace.diagnostics.pdk.Status;
+import com.dynatrace.diagnostics.pdk.TaskEnvironment;
+import com.dynatrace.diagnostics.pdk.Violation;
 
 
 public class TriggerProfiling implements Action {
@@ -61,7 +69,7 @@ public class TriggerProfiling implements Action {
 		// this sample shows how to receive and act on incidents
 		Collection<Incident> incidents = env.getIncidents();
 
-        String watchingURI = null;
+        List<String> watchingURI = new ArrayList<String>();
 
         for (Incident incident : incidents) {
             String message = incident.getMessage();
@@ -85,7 +93,7 @@ public class TriggerProfiling implements Action {
                     log.info(String.format("\t\t\tSplitting '%s'", sp));
                     //if (sp.matches("/[a-zA-Z0-9].*")) {
                     //	log.info("\t\tWATCHING URI = " + sp);
-                    watchingURI = sp;
+                    watchingURI.add(sp);
                     //}
                 }
             }
@@ -98,14 +106,17 @@ public class TriggerProfiling implements Action {
 		String host = env.getConfigString("serverHostname");
 		String path = env.getConfigString("path");
 		Integer port = 8080;//env.getConfigLong("port").intValue();
-
-		if (watchingURI != null) {
-			log.info("PROTOCOL = " + protocol);
-			log.info("HOST = " + host);
-			log.info("PATH = " + path);
-			log.info("PORT = " + port);
+		
+		log.info("PROTOCOL = " + protocol);
+		log.info("HOST = " + host);
+		log.info("PATH = " + path);
+		log.info("PORT = " + port);
+		
+		if (! watchingURI.isEmpty()) {
 			ProfilingURLManager manager = new ProfilingURLManager(protocol, host, port, path);
-			manager.addUrl(watchingURI);
+			for (String url: watchingURI) {
+				manager.addUrl(url);
+			}
 		}
 
 		return new Status(Status.StatusCode.Success);
